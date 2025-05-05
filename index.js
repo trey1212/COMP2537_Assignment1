@@ -54,7 +54,7 @@ app.get('/', (req,res) => {
             <button>Login</button>
         </form>
 
-        <form action='/signup' method='get'>
+        <form action='/createUser' method='get'>
             <button>Signup</button>
         </form>
     `
@@ -128,8 +128,30 @@ app.get('/createUser', (req,res) => {
     create user
     <form action='/submitUser' method='post'>
     <input name='username' type='text' placeholder='username'>
+    <input name='email' type='email' placeholder='email'>
     <input name='password' type='password' placeholder='password'>
     <button>Submit</button>
+    </form>
+    `;
+    res.send(html);
+});
+
+app.get('/createUserSubmit', (req,res) => {
+    //Display missing fields
+    const missingFields = req.query.missing ? req.query.missing.split(',') : [];
+    let message = "";
+    if (missingFields.length > 0) {
+        message += missingFields.join(', ');
+    } else {
+        message = "All fields are missing.";
+    }
+
+    var html = `
+    
+    ${message} is required.
+
+    <form action='/createUser' method='get'>
+    <button>Try again</button>
     </form>
     `;
     res.send(html);
@@ -140,7 +162,7 @@ app.get('/login', (req,res) => {
     var html = `
     log in
     <form action='/loggingin' method='post'>
-    <input name='username' type='text' placeholder='username'>
+    <input name='email' type='email' placeholder='email'>
     <input name='password' type='password' placeholder='password'>
     <button>Submit</button>
     </form>
@@ -150,20 +172,30 @@ app.get('/login', (req,res) => {
 
 app.post('/submitUser', async (req,res) => {
     var username = req.body.username;
+    var email = req.body.email;
     var password = req.body.password;
+    
 
 	const schema = Joi.object(
 		{
 			username: Joi.string().alphanum().max(20).required(),
+            email: Joi.string().email().max(50).required(),
 			password: Joi.string().max(20).required()
 		});
 	
-	const validationResult = schema.validate({username, password});
+	const validationResult = schema.validate({username, email, password});
 	if (validationResult.error != null) {
-	   console.log(validationResult.error);
-	   res.redirect("/createUser");
-	   return;
-   }
+        console.log(validationResult.error);
+
+        //Redirect to createUserSubmit with displayed missing fields
+        const missingFields = [];
+        if (!username) missingFields.push('username');
+        if (!email) missingFields.push('email');
+        if (!password) missingFields.push('password');
+
+        res.redirect(`/createUserSubmit?missing=${missingFields.join(',')}`);
+        return;
+    }
 
     var hashedPassword = await bcrypt.hash(password, saltRounds);
 	
@@ -176,6 +208,7 @@ app.post('/submitUser', async (req,res) => {
 
 app.post('/loggingin', async (req,res) => {
     var username = req.body.username;
+    var email = req.body.email;
     var password = req.body.password;
 
 	const schema = Joi.string().max(20).required();
