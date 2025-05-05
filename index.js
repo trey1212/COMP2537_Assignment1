@@ -51,7 +51,7 @@ app.use(session({
 app.get('/', (req,res) => {
     var html = `
         <form action='/login' method='get'>
-            <button>login</button>
+            <button>Login</button>
         </form>
 
         <form action='/signup' method='get'>
