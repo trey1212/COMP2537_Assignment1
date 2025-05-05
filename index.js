@@ -34,7 +34,7 @@ const userCollection = database.db(mongodb_database).collection('users');
 app.use(express.urlencoded({extended: false}));
 
 var mongoStore = MongoStore.create({
-	mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/sessions`,
+	mongoUrl: `mongodb+srv://rtarrayo2:password123!@comp2537-assignment1.mtcuygk.mongodb.net/?retryWrites=true&w=majority&appName=COMP2537-Assignment1`,
 	crypto: {
 		secret: mongodb_session_secret
 	}
