@@ -45,16 +45,6 @@ app.use(session({
 	store: mongoStore, //default is memory store 
 	saveUninitialized: false, 
 	resave: true,
-    cookie: {
-        maxAge: expireTime,
-        secure: true,
-        sameSite: 'lax'
-    },
-    name: 'connect.sid',
-    // 👇 This prevents signing the session ID in the cookie
-    genid: function(req) {
-        return require('crypto').randomBytes(16).toString('hex'); // custom ID
-    }
 }
 ));
 
