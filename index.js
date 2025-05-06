@@ -256,22 +256,41 @@ app.post('/loggingin', async (req,res) => {
 
 app.get('/members', (req,res) => {
     if (!req.session.authenticated) {
-        res.redirect('/loginSubmit');
+        res.redirect('/');
     }
     var username = req.session.username;
 
+    //Array of images to display
+    const images = [
+        '/fluffy.gif',
+        '/socks.gif',
+        '/yippee.gif',
+        '/chipichapa.gif',
+        '/huh.gif',
+        '/omg.gif',
+        '/wtf.gif',
+        '/laugh.gif',
+        '/NOO.gif'
+    ];
+
+    // Select a random image
+    const randomImage = images[Math.floor(Math.random() * images.length)];
+
     var html = `
-    Hello, ${username}!
+    <span style="font-size:50px">Hello, ${username}!</span>
+    <br>
+    <img src="${randomImage}" alt="random cat" style="width:200px;">
+    <br>
+    <form action='/logout' method='get'>
+        <button>Logout</button>
+    </form>
     `;
     res.send(html);
 });
 
 app.get('/logout', (req,res) => {
 	req.session.destroy();
-    var html = `
-    You are logged out.
-    `;
-    res.send(html);
+    res.redirect('/');
 });
 
 
@@ -295,7 +314,10 @@ app.use(express.static(__dirname + "/public"));
 
 app.get("*", (req,res) => {
 	res.status(404);
-	res.send("Page not found - 404");
+    var html = `
+    <h1>Page not found - 404</h1>
+    `
+	res.send(html);
 })
 
 app.listen(port, () => {
