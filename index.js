@@ -41,7 +41,7 @@ var mongoStore = MongoStore.create({
 })
 
 app.use(session({ 
-    secret: node_session_secret || 'cat123!',
+    secret: node_session_secret,
 	store: mongoStore, //default is memory store 
 	saveUninitialized: false, 
 	resave: true
