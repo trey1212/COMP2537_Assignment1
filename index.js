@@ -41,7 +41,7 @@ var mongoStore = MongoStore.create({
 })
 
 app.use(session({ 
-    secret: node_session_secret,
+    secret: node_session_secret || 'cat123!',
 	store: mongoStore, //default is memory store 
 	saveUninitialized: false, 
 	resave: true
@@ -308,7 +308,6 @@ app.get('/cat/:id', (req,res) => {
         res.send("Invalid cat id: "+cat);
     }
 });
-
 
 app.use(express.static(__dirname + "/public"));
 
