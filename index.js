@@ -45,7 +45,7 @@ app.use(session({
 	store: mongoStore, //default is memory store 
 	saveUninitialized: false, 
 	resave: true,
-    cookie: {secure: false}
+    cookie: {secure: true, maxAge: expireTime} //secure: true for HTTPS only
 }
 ));
 
