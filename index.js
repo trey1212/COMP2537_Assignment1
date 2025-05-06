@@ -170,6 +170,16 @@ app.get('/login', (req,res) => {
     res.send(html);
 });
 
+app.get('/loginSubmit', (req,res) => {
+    var html = `
+    Invalid email/password combination
+    <form action='/login' method='get'>
+    <button>Try Again</button>
+    </form>
+    `;
+    res.send(html);
+});
+
 app.post('/submitUser', async (req,res) => {
     var username = req.body.username;
     var email = req.body.email;
@@ -199,7 +209,7 @@ app.post('/submitUser', async (req,res) => {
 
     var hashedPassword = await bcrypt.hash(password, saltRounds);
 	
-	await userCollection.insertOne({username: username, password: hashedPassword});
+	await userCollection.insertOne({username: username, email: email, password: hashedPassword});
 	console.log("Inserted user");
 
     var html = "successfully created user";
@@ -211,44 +221,47 @@ app.post('/loggingin', async (req,res) => {
     var email = req.body.email;
     var password = req.body.password;
 
-	const schema = Joi.string().max(20).required();
-	const validationResult = schema.validate(username);
+	const schema = Joi.string().max(50).required();
+	const validationResult = schema.validate(email);
 	if (validationResult.error != null) {
 	   console.log(validationResult.error);
 	   res.redirect("/login");
 	   return;
 	}
 
-	const result = await userCollection.find({username: username}).project({username: 1, password: 1, _id: 1}).toArray();
+	const result = await userCollection.find({email: email}).project({username: 1, password: 1, _id: 1}).toArray();
 
 	console.log(result);
 	if (result.length != 1) {
 		console.log("user not found");
-		res.redirect("/login");
+		res.redirect("/loginSubmit");
 		return;
 	}
 	if (await bcrypt.compare(password, result[0].password)) {
 		console.log("correct password");
 		req.session.authenticated = true;
-		req.session.username = username;
+		req.session.email = email;
+        req.session.username = result[0].username;
 		req.session.cookie.maxAge = expireTime;
 
-		res.redirect('/loggedIn');
+		res.redirect('/members');
 		return;
 	}
 	else {
 		console.log("incorrect password");
-		res.redirect("/login");
+		res.redirect("/loginSubmit");
 		return;
 	}
 });
 
-app.get('/loggedin', (req,res) => {
+app.get('/members', (req,res) => {
     if (!req.session.authenticated) {
-        res.redirect('/login');
+        res.redirect('/loginSubmit');
     }
+    var username = req.session.username;
+
     var html = `
-    You are logged in!
+    Hello, ${username}!
     `;
     res.send(html);
 });
